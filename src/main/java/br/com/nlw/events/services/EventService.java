@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.nlw.events.exceptions.EventNotFoundException;
 import br.com.nlw.events.models.Event;
 import br.com.nlw.events.repositories.EventRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -59,7 +60,9 @@ public class EventService {
      * 
      * @return Event
     */
-    public Event findByPrettyName(String prettyName){
+    public Event findByPrettyName(String prettyName) throws EventNotFoundException {
         return eventRepository.findByPrettyName(prettyName);
     }
+
+    
 }

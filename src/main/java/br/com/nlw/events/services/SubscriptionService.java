@@ -1,11 +1,15 @@
 package br.com.nlw.events.services;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import br.com.nlw.events.exceptions.EventNotFoundException;
+import br.com.nlw.events.exceptions.SubscriptioNotFoundException;
 import br.com.nlw.events.models.Event;
 import br.com.nlw.events.models.Indication;
 import br.com.nlw.events.models.Subscription;
@@ -21,7 +25,34 @@ public class SubscriptionService {
     @Autowired
     private EventService eventService;
 
-    public Subscription add(Subscription subscriptionNew) {
+    public Subscription add(Event event, User user) {
+
+        try {
+
+            Event event = eventService.findByPrettyName(prettyName);
+
+            Subscription subscriptionNew = new Subscription();
+            subscriptionNew.setEvent(event);
+            subscriptionNew.setUser(user);
+
+            Subscription subscription = findByEventAndUser(event, user);
+
+            if (Objects.nonNull(subscription)) {
+
+                indicationLink = event.getPrettyName() + "/" + subscription.getId();
+
+                subscriptionResponse.add(subscription.getId());
+                subscriptionResponse.add(indicationLink);
+
+                return ResponseEntity.badRequest().body(subscriptionResponse);
+            }
+            
+        } catch (EventNotFoundException e) {
+            return e;
+        } catch (SubscriptioNotFoundException e){
+            return e;
+        }
+
         return subscriptionRepository.save(subscriptionNew);
     }
 
@@ -31,7 +62,7 @@ public class SubscriptionService {
         .findByEventAndUser(event, user);
 
         if(!subscription.isPresent()){
-            return null;
+            throw new SubscriptioNotFoundException("Subscription does not exist.");
         }
 
         return subscription.get();
