@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "event")
+@Table(name = "events")
 public class Event {
 
     @Id
@@ -32,7 +32,7 @@ public class Event {
     private Double price;
 
     @Column(name = "start_date")
-    private LocalDate starDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date")
     private LocalDate endDate;
@@ -83,12 +83,12 @@ public class Event {
         this.price = price;
     }
 
-    public LocalDate getStarDate() {
-        return starDate;
+    public LocalDate getstartDate() {
+        return startDate;
     }
 
-    public void setStarDate(LocalDate starDate) {
-        this.starDate = starDate;
+    public void setstartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 
     public LocalDate getEndDate() {

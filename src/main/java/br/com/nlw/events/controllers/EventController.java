@@ -24,17 +24,28 @@ public class EventController {
     
     @PostMapping("/events")
     public Event postEvent(@RequestBody Event event) {
-        return this.eventService.addNewEvent(event);
+        return this.eventService.add(event);
     }
     
     @GetMapping("/events")
     public List<Event> getAllEvents(){
-        return (List<Event>) this.eventService.getAllEvents();
+        return (List<Event>) this.eventService.findAll();
+    }
+
+    @GetMapping("/events/{id}")
+    public ResponseEntity<Event> getEventById(@PathVariable Integer id){
+        Event event = this.eventService.findById(id);
+
+        if( Objects.isNull(event) ){
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok().body(event);
     }
 
     @GetMapping("/events/{prettyName}")
     public ResponseEntity<Event> getEventByPrettyName(@PathVariable String prettyName){
-        Event event =  this.eventService.getByPrettyName(prettyName);
+        Event event =  this.eventService.findByPrettyName(prettyName);
 
         if(  Objects.isNull(event) ){
             return ResponseEntity.notFound().build();
