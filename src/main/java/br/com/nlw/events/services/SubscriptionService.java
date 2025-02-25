@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import br.com.nlw.events.exceptions.EventNotFoundException;
-import br.com.nlw.events.exceptions.SubscriptioNotFoundException;
+import br.com.nlw.events.exceptions.AlreadyExistsException;
+import br.com.nlw.events.exceptions.NotFoundException;
 import br.com.nlw.events.models.Event;
 import br.com.nlw.events.models.Indication;
 import br.com.nlw.events.models.Subscription;
@@ -25,48 +25,40 @@ public class SubscriptionService {
     @Autowired
     private EventService eventService;
 
-    public Subscription add(Event event, User user) {
+    @Autowired
+    private UserService userService;
 
-        try {
+    @Autowired
+    private IndicationService indicationService;
 
-            Event event = eventService.findByPrettyName(prettyName);
+    public Subscription add(Event event, User userNew) {
 
-            Subscription subscriptionNew = new Subscription();
-            subscriptionNew.setEvent(event);
-            subscriptionNew.setUser(user);
+        //Create user
+        User user = userService.add(userNew);
 
-            Subscription subscription = findByEventAndUser(event, user);
-
-            if (Objects.nonNull(subscription)) {
-
-                indicationLink = event.getPrettyName() + "/" + subscription.getId();
-
-                subscriptionResponse.add(subscription.getId());
-                subscriptionResponse.add(indicationLink);
-
-                return ResponseEntity.badRequest().body(subscriptionResponse);
-            }
-            
-        } catch (EventNotFoundException e) {
-            return e;
-        } catch (SubscriptioNotFoundException e){
-            return e;
+        if(subscriptionRepository.findByEventAndUser(event, user).isPresent()){
+            throw new AlreadyExistsException("Subscription Already Exists.");
         }
+
+        Subscription subscriptionNew = new Subscription();
+        subscriptionNew.setEvent(event);
+        subscriptionNew.setUser(user);
 
         return subscriptionRepository.save(subscriptionNew);
     }
 
-    public Subscription findByEventAndUser(Event event, User user){
+    public Subscription save(Subscription subscriptionNew) {
+        return subscriptionRepository.save(subscriptionNew);
+    }
 
-        Optional<Subscription> subscription = subscriptionRepository
-        .findByEventAndUser(event, user);
+    public Subscription findByEventAndUser(Event event, User user) {
 
-        if(!subscription.isPresent()){
-            throw new SubscriptioNotFoundException("Subscription does not exist.");
-        }
+        Subscription subscription = subscriptionRepository
+                .findByEventAndUser(event, user)
+                .orElseThrow(() -> new NotFoundException("Subscription not found."));
 
-        return subscription.get();
-    } 
+        return subscription;
+    }
 
     public Optional<Subscription> findById(Integer id) {
         return subscriptionRepository.findById(id);
@@ -82,7 +74,7 @@ public class SubscriptionService {
      * /prettyName/subscriptionId
      */
     // public getIndicationLink(){
-        
-    //     String indicationLink = eventService.findByPrettyName(prettyName)
+
+    // String indicationLink = eventService.findByPrettyName(prettyName)
     // }
 }

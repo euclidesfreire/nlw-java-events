@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.nlw.events.exceptions.NotFoundException;
 import br.com.nlw.events.models.User;
 import br.com.nlw.events.repositories.UserRepository;
 
@@ -14,22 +15,25 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User add(User userNew){
+    public User add(User userNew) {
 
-        Optional<User> user = findByEmail(userNew.getEmail());
+        Optional<User> user = userRepository.findByEmail(userNew.getEmail());
 
-        if(user.isPresent()){
+        if (user.isPresent()) {
             return user.get();
         }
 
         return userRepository.save(userNew);
+
     }
 
-    public Optional<User> findById(Integer id){
-        return userRepository.findById(id);
+    public User findById(Integer id){
+        return userRepository.findById(id)
+        .orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
 
-    public Optional<User> findByEmail(String email){
-        return userRepository.findByEmail(email);
+    public User findByEmail(String email){
+        return userRepository.findByEmail(email)
+        .orElseThrow(() -> new NotFoundException("User not found with email: " + email));
     }
 }

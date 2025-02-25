@@ -24,8 +24,14 @@ public class IndicationService {
 
         subscription.setIndicationCount(indicationCount);
 
-        subscriptionService.add(subscription);
+        subscriptionService.save(subscription);
 
         indicationRepository.save(indication);
+    }
+
+    public String getUrl(String eventPrettyName, Integer subscriptionId){
+        String url = "/subscription/" + eventPrettyName + "/" + subscriptionId;
+
+        return url;
     }
 }

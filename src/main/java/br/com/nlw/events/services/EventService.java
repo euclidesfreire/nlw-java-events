@@ -1,15 +1,13 @@
 package br.com.nlw.events.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.nlw.events.exceptions.EventNotFoundException;
+import br.com.nlw.events.exceptions.NotFoundException;
 import br.com.nlw.events.models.Event;
 import br.com.nlw.events.repositories.EventRepository;
-import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class EventService {
@@ -25,7 +23,6 @@ public class EventService {
      * @return Event envet
     */
     public Event add(Event event){
-
         event.setPrettyName(event.getTitle().toLowerCase().replaceAll(" ", "-"));
 
         return this.eventRepository.save(event);
@@ -48,9 +45,8 @@ public class EventService {
      * @return Event
     */
     public Event findById(Integer id){
-
         return eventRepository.findById(id)
-         .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado!"));
+         .orElseThrow(() -> new NotFoundException("Event not found with id: " + id));
     }
 
     /**
@@ -60,8 +56,9 @@ public class EventService {
      * 
      * @return Event
     */
-    public Event findByPrettyName(String prettyName) throws EventNotFoundException {
-        return eventRepository.findByPrettyName(prettyName);
+    public Event findByPrettyName(String prettyName) throws NotFoundException {
+        return eventRepository.findByPrettyName(prettyName)
+        .orElseThrow(() -> new NotFoundException("Event not found: "  + prettyName));
     }
 
     

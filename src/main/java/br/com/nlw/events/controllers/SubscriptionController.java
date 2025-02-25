@@ -1,6 +1,7 @@
 package br.com.nlw.events.controllers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.nlw.events.exceptions.AlreadyExistsException;
+import br.com.nlw.events.exceptions.NotFoundException;
 import br.com.nlw.events.models.Event;
 import br.com.nlw.events.models.Indication;
 import br.com.nlw.events.models.Subscription;
@@ -46,43 +49,29 @@ public class SubscriptionController {
     @PostMapping("/subscription/{prettyName}")
     public ResponseEntity<Object> postSubscription(
         @PathVariable String prettyName, 
-        @RequestBody User userNew
+        @RequestBody User user
     ){
-        List<Object> subscriptionResponse = new ArrayList<Object>();
-        String indicationLink = "/subscription/";
 
-        Event event = eventService.findByPrettyName(prettyName);
+        try {
 
-        if( Objects.isNull(event) ){
-            return ResponseEntity.badRequest().body("Evento não existe.");
+            List<Object> response = new ArrayList<Object>();
+
+            Event event = eventService.findByPrettyName(prettyName);
+
+            Subscription subscription = subscriptionService.add(event, user);
+
+            String indicationUrl = indicationService.getUrl(prettyName, subscription.getId());
+
+            response.add(indicationUrl)
+            response.add(subscription.getId())   
+
+            return ResponseEntity.ok().body(response);
+
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         }
-
-        User user = userService.add(userNew);
-
-        Subscription subscription = subscriptionService.findByEventAndUser(event, user);
-
-        if( Objects.nonNull(subscription) ){
-
-            indicationLink = event.getPrettyName() + "/" + subscription.getId();
-
-            subscriptionResponse.add(subscription.getId());
-            subscriptionResponse.add(indicationLink);
-
-            return ResponseEntity.badRequest().body(subscriptionResponse);
-        }
-
-        Subscription subscriptionNew = new Subscription();
-        subscriptionNew.setEvent(event);
-        subscriptionNew.setUser(user);
-
-        Subscription subscriptionAdd = subscriptionService.add(subscriptionNew);
-
-        indicationLink = event.getPrettyName() + "/" + subscriptionAdd.getId();
-
-        subscriptionResponse.add(subscriptionAdd.getId());
-        subscriptionResponse.add(subscriptionAdd);
-
-        return ResponseEntity.ok().body(subscriptionResponse);
     }
 
 
