@@ -56,14 +56,12 @@ public class SubscriptionController {
 
             List<Object> response = new ArrayList<Object>();
 
-            Event event = eventService.findByPrettyName(prettyName);
-
-            Subscription subscription = subscriptionService.add(event, user);
+            Subscription subscription = subscriptionService.add(prettyName, user);
 
             String indicationUrl = indicationService.getUrl(prettyName, subscription.getId());
 
-            response.add(indicationUrl)
-            response.add(subscription.getId())   
+            response.add(indicationUrl);
+            response.add(subscription.getId()); 
 
             return ResponseEntity.ok().body(response);
 
@@ -79,51 +77,77 @@ public class SubscriptionController {
     public ResponseEntity<Object> postSubscriptionIndication(
         @PathVariable String prettyName, 
         @PathVariable Integer subscriptionId, 
-        @RequestBody User userNew
+        @RequestBody User user
     ){
-        List<Object> subscriptionResponse = new ArrayList<Object>();
-        String indicationLink = "subscription/";
 
-        Event event = eventService.findByPrettyName(prettyName);
+        try {
 
-        if( Objects.isNull(event) ){
-            return ResponseEntity.badRequest().body("Evento não existe.");
+            List<Object> response = new ArrayList<Object>();
+
+            Subscription subscription = subscriptionService.add(prettyName, user);
+
+            Indication indication = new Indication();
+            indication.setSubscription(subscription);
+            indication.setUser(user);
+
+            indicationService.add(indication);
+
+            String indicationUrl = indicationService.getUrl(prettyName, subscription.getId());
+
+            response.add(indicationUrl);
+            response.add(subscription.getId()); 
+
+            return ResponseEntity.ok().body(response);
+
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         }
 
-        User user = userService.add(userNew);
+        //List<Object> subscriptionResponse = new ArrayList<Object>();
+        //String indicationLink = "subscription/";
 
-        Subscription subscription = subscriptionService.findByEventAndUser(event, user);
+        //Event event = eventService.findByPrettyName(prettyName);
 
-        if( Objects.nonNull(subscription) ){
+        //if( Objects.isNull(event) ){
+            //return ResponseEntity.badRequest().body("Evento não existe.");
+        //}
 
-            indicationLink = event.getPrettyName() + "/" + subscription.getId();
+        //User user = userService.add(userNew);
 
-            subscriptionResponse.add(subscription.getId());
-            subscriptionResponse.add(indicationLink);
+        //Subscription subscription = subscriptionService.findByEventAndUser(event, user);
 
-            return ResponseEntity.badRequest().body(subscriptionResponse);
-        }
+        //if( Objects.nonNull(subscription) ){
 
-        Subscription subscriptionNew = new Subscription();
-        subscriptionNew.setEvent(event);
-        subscriptionNew.setUser(user);
+            //indicationLink = event.getPrettyName() + "/" + subscription.getId();
 
-        Subscription subscriptionAdd = subscriptionService.add(subscriptionNew);
+            //subscriptionResponse.add(subscription.getId());
+            //subscriptionResponse.add(indicationLink);
 
-        Subscription subscriptionIndication = subscriptionService.findById(subscriptionId).get();
+            //return ResponseEntity.badRequest().body(subscriptionResponse);
+        //}
 
-        Indication indication = new Indication();
-        indication.setSubscription(subscriptionIndication);
-        indication.setUser(userNew);
+        //Subscription subscriptionNew = new Subscription();
+        //subscriptionNew.setEvent(event);
+        //subscriptionNew.setUser(user);
 
-        indicationService.add(indication);
+        ///Subscription subscriptionAdd = subscriptionService.add(subscriptionNew);
 
-        indicationLink = event.getPrettyName() + "/" + subscriptionAdd.getId();
+        //Subscription subscriptionIndication = subscriptionService.findById(subscriptionId).get();
 
-        subscriptionResponse.add(subscriptionAdd.getId());
-        subscriptionResponse.add(subscriptionAdd);
+        //Indication indication = new Indication();
+        //indication.setSubscription(subscriptionIndication);
+        //indication.setUser(user);
 
-        return ResponseEntity.ok().body(subscriptionResponse);
+        //indicationService.add(indication);
+
+        //indicationLink = event.getPrettyName() + "/" + subscriptionAdd.getId();
+
+        //subscriptionResponse.add(subscriptionAdd.getId());
+        //subscriptionResponse.add(subscriptionAdd);
+
+       // return ResponseEntity.ok().body(subscriptionResponse);
     }
 
     @GetMapping("/subscription/{prettyName}")
