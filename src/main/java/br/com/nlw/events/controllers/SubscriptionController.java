@@ -1,12 +1,10 @@
 package br.com.nlw.events.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.nlw.events.dto.SubscriptionResponseDTO;
 import br.com.nlw.events.exceptions.AlreadyExistsException;
 import br.com.nlw.events.exceptions.NotFoundException;
 import br.com.nlw.events.models.Subscription;
@@ -48,16 +46,12 @@ public class SubscriptionController {
     ){
         try {
 
-            List<Object> response = new ArrayList<Object>();
-
             Subscription subscription = subscriptionService.add(prettyName, user);
 
             String indicationUrl = indicationService.getUrl(prettyName, subscription.getId());
 
-            response.add(indicationUrl);
-            response.add(subscription.getId()); 
-
-            return ResponseEntity.ok().body(response);
+            return ResponseEntity.ok()
+            .body(new SubscriptionResponseDTO(subscription.getId(), indicationUrl));
 
         } catch (NotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
@@ -81,19 +75,14 @@ public class SubscriptionController {
         @RequestBody User user
     ){
         try {
-
-            List<Object> response = new ArrayList<Object>();
-
             //Add new subscription by subscription indication
             Subscription subscription = subscriptionService
             .addByIndication(prettyName, user, subscriptionIndicationId);
 
             String indicationUrl = indicationService.getUrl(prettyName, subscription.getId());
 
-            response.add(indicationUrl);
-            response.add(subscription.getId()); 
-
-            return ResponseEntity.ok().body(response);
+            return ResponseEntity.ok()
+            .body(new SubscriptionResponseDTO(subscription.getId(), indicationUrl));
 
         } catch (NotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
@@ -140,10 +129,9 @@ public class SubscriptionController {
      * @return Subscription
      */
     @GetMapping("/subscription/{prettyName}/{subscriptionId}/ranking")
-    public ResponseEntity<?>  getRankingBySubscription(
-        @PathVariable String prettyName,
-        @PathVariable Integer subscriptionId
-    ){
+    public ResponseEntity<?> getRankingBySubscription(
+            @PathVariable String prettyName,
+            @PathVariable Integer subscriptionId) {
         try {
             return ResponseEntity.ok().body(rankingService.findRankingBySubscription(prettyName, subscriptionId));
         } catch (NotFoundException e) {

@@ -2,6 +2,7 @@ package br.com.nlw.events.services;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +20,11 @@ public class RankingService {
     @Autowired
     EventService eventService;
 
-    public List<Object> findRanking(String prettyName){
+    public List<?> findRanking(String prettyName){
         
-            List<Object> ranking = subscriptionService.findAllByEvent(prettyName).stream()
+            List<?> ranking = subscriptionService.findAllByEvent(prettyName).stream()
             .sorted(Comparator.comparing((Subscription s)-> s.getIndicationCount()).reversed())
-            //.map(s -> Map.entry(s.getUser().getName(), s.getIndicationCount()))
+            .map((Subscription s) -> Map.entry(s.getUser().getName(), s.getIndicationCount()))
             .collect(Collectors.toList());
 
             return ranking;
@@ -31,9 +32,10 @@ public class RankingService {
 
     public Object findRankingBySubscription(String prettyName, Integer subscriptionId){
         
-        Object ranking = subscriptionService.findAllByEvent(prettyName).stream()
+         Object ranking = subscriptionService.findAllByEvent(prettyName).stream()
         .sorted(Comparator.comparing((Subscription s)-> s.getIndicationCount()).reversed())
         .filter(s -> s.getId().equals(subscriptionId)).findFirst()
+        .map((Subscription s) -> Map.entry(s.getUser().getName(), s.getIndicationCount()))
         .orElseThrow(() -> new NotFoundException("Not Indication by Subscription: " + subscriptionId));
 
         return ranking;
