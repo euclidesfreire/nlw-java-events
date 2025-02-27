@@ -1,11 +1,9 @@
 package br.com.nlw.events.services;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import br.com.nlw.events.exceptions.AlreadyExistsException;
@@ -31,9 +29,12 @@ public class SubscriptionService {
     @Autowired
     private IndicationService indicationService;
 
-    public Subscription add(Event event, User userNew) {
+    public Subscription add(String eventPrettyName, User userNew) {
 
-        //Create user
+        //check e find event
+        Event event = eventService.findByPrettyName(eventPrettyName);
+
+        //Create user or if Already Exists, get user
         User user = userService.add(userNew);
 
         if(subscriptionRepository.findByEventAndUser(event, user).isPresent()){
@@ -45,6 +46,26 @@ public class SubscriptionService {
         subscriptionNew.setUser(user);
 
         return subscriptionRepository.save(subscriptionNew);
+    }
+
+    public Subscription addByIndication(
+        String eventPrettyName, 
+        User user, 
+        Integer subscriptionIndicationId
+    ){
+        Subscription subscription = add(eventPrettyName, user);
+
+        //Get subscription indication
+        Subscription subscriptionIndication = subscriptionRepository
+        .findById(subscriptionIndicationId).get();
+
+        Indication indication = new Indication();
+        indication.setSubscription(subscriptionIndication);
+        indication.setUser(user);
+
+        indicationService.add(indication);
+
+        return subscription;
     }
 
     public Subscription save(Subscription subscriptionNew) {

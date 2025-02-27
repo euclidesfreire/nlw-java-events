@@ -1,9 +1,7 @@
 package br.com.nlw.events.controllers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,15 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.nlw.events.exceptions.AlreadyExistsException;
 import br.com.nlw.events.exceptions.NotFoundException;
-import br.com.nlw.events.models.Event;
 import br.com.nlw.events.models.Indication;
 import br.com.nlw.events.models.Subscription;
 import br.com.nlw.events.models.User;
-import br.com.nlw.events.services.EventService;
 import br.com.nlw.events.services.IndicationService;
 import br.com.nlw.events.services.RankingService;
 import br.com.nlw.events.services.SubscriptionService;
-import br.com.nlw.events.services.UserService;
+
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,12 +33,6 @@ public class SubscriptionController {
     private IndicationService indicationService;
 
     @Autowired
-    private EventService eventService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
     private RankingService rankingService;
 
     
@@ -57,7 +47,7 @@ public class SubscriptionController {
             List<Object> response = new ArrayList<Object>();
 
             Subscription subscription = subscriptionService.add(prettyName, user);
-
+=
             String indicationUrl = indicationService.getUrl(prettyName, subscription.getId());
 
             response.add(indicationUrl);
@@ -76,7 +66,7 @@ public class SubscriptionController {
     @PostMapping("/subscription/{prettyName}/{subscriptionId}")
     public ResponseEntity<Object> postSubscriptionIndication(
         @PathVariable String prettyName, 
-        @PathVariable Integer subscriptionId, 
+        @PathVariable Integer subscriptionIndicationId, 
         @RequestBody User user
     ){
 
@@ -84,13 +74,9 @@ public class SubscriptionController {
 
             List<Object> response = new ArrayList<Object>();
 
-            Subscription subscription = subscriptionService.add(prettyName, user);
-
-            Indication indication = new Indication();
-            indication.setSubscription(subscription);
-            indication.setUser(user);
-
-            indicationService.add(indication);
+            //Add new subscription by subscription indication
+            Subscription subscription = subscriptionService
+            .addByIndication(prettyName, user, subscriptionIndicationId);
 
             String indicationUrl = indicationService.getUrl(prettyName, subscription.getId());
 
@@ -104,50 +90,6 @@ public class SubscriptionController {
         } catch (AlreadyExistsException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
-
-        //List<Object> subscriptionResponse = new ArrayList<Object>();
-        //String indicationLink = "subscription/";
-
-        //Event event = eventService.findByPrettyName(prettyName);
-
-        //if( Objects.isNull(event) ){
-            //return ResponseEntity.badRequest().body("Evento não existe.");
-        //}
-
-        //User user = userService.add(userNew);
-
-        //Subscription subscription = subscriptionService.findByEventAndUser(event, user);
-
-        //if( Objects.nonNull(subscription) ){
-
-            //indicationLink = event.getPrettyName() + "/" + subscription.getId();
-
-            //subscriptionResponse.add(subscription.getId());
-            //subscriptionResponse.add(indicationLink);
-
-            //return ResponseEntity.badRequest().body(subscriptionResponse);
-        //}
-
-        //Subscription subscriptionNew = new Subscription();
-        //subscriptionNew.setEvent(event);
-        //subscriptionNew.setUser(user);
-
-        ///Subscription subscriptionAdd = subscriptionService.add(subscriptionNew);
-
-        //Subscription subscriptionIndication = subscriptionService.findById(subscriptionId).get();
-
-        //Indication indication = new Indication();
-        //indication.setSubscription(subscriptionIndication);
-        //indication.setUser(user);
-
-        //indicationService.add(indication);
-
-        //indicationLink = event.getPrettyName() + "/" + subscriptionAdd.getId();
-
-        //subscriptionResponse.add(subscriptionAdd.getId());
-        //subscriptionResponse.add(subscriptionAdd);
-
-       // return ResponseEntity.ok().body(subscriptionResponse);
     }
 
     @GetMapping("/subscription/{prettyName}")
