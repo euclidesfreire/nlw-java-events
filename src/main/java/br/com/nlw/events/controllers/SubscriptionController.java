@@ -47,7 +47,7 @@ public class SubscriptionController {
             List<Object> response = new ArrayList<Object>();
 
             Subscription subscription = subscriptionService.add(prettyName, user);
-=
+
             String indicationUrl = indicationService.getUrl(prettyName, subscription.getId());
 
             response.add(indicationUrl);
