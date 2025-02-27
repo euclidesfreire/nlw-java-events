@@ -34,13 +34,18 @@ public class SubscriptionController {
     @Autowired
     private RankingService rankingService;
 
-    
+    /**
+     * Post Subscription
+     * 
+     * @param prettyName
+     * @param user
+     * @return
+     */
     @PostMapping("/subscription/{prettyName}")
-    public ResponseEntity<Object> postSubscription(
+    public ResponseEntity<?> postSubscription(
         @PathVariable String prettyName, 
         @RequestBody User user
     ){
-
         try {
 
             List<Object> response = new ArrayList<Object>();
@@ -61,14 +66,20 @@ public class SubscriptionController {
         }
     }
 
-
-    @PostMapping("/subscription/{prettyName}/{subscriptionId}")
-    public ResponseEntity<Object> postSubscriptionIndication(
+    /**
+     * Post subscription by subscriptionIndicationId
+     * 
+     * @param prettyName
+     * @param subscriptionIndicationId
+     * @param user
+     * @return
+     */
+    @PostMapping("/subscription/{prettyName}/{subscriptionIndicationId}")
+    public ResponseEntity<?> postSubscriptionIndication(
         @PathVariable String prettyName, 
         @PathVariable Integer subscriptionIndicationId, 
         @RequestBody User user
     ){
-
         try {
 
             List<Object> response = new ArrayList<Object>();
@@ -91,22 +102,52 @@ public class SubscriptionController {
         }
     }
 
+    /**
+     * Get subscription
+     * 
+     * @param prettyName
+     * @return List<Subscription>
+     */
     @GetMapping("/subscription/{prettyName}")
-    public List<Subscription>  getSubscription(@PathVariable String prettyName){
-         return subscriptionService.findAllByEvent(prettyName);
+    public ResponseEntity<?>  getSubscription(@PathVariable String prettyName){
+         try {
+            return ResponseEntity.ok().body(subscriptionService.findAllByEvent(prettyName));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
 
+    /**
+     * Get Ranking Complete 
+     * 
+     * @param prettyName
+     * @return List<Subscription>
+     */
     @GetMapping("/subscription/{prettyName}/ranking")
-    public List<Object>  getRanking(@PathVariable String prettyName){
-        return rankingService.getRanking(prettyName);
+    public ResponseEntity<?>  getRanking(@PathVariable String prettyName){
+        try {
+            return ResponseEntity.ok().body(rankingService.findRanking(prettyName));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
 
+    /**
+     * Get Ranking by Subscription
+     * 
+     * @param prettyName
+     * @param subscriptionId
+     * @return Subscription
+     */
     @GetMapping("/subscription/{prettyName}/{subscriptionId}/ranking")
-    public List<Object>  getRanking(
+    public ResponseEntity<?>  getRankingBySubscription(
         @PathVariable String prettyName,
         @PathVariable Integer subscriptionId
     ){
-
-        return rankingService.getRanking(prettyName);
+        try {
+            return ResponseEntity.ok().body(rankingService.findRankingBySubscription(prettyName, subscriptionId));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
 }

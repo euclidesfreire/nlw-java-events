@@ -19,7 +19,7 @@ public class IndicationService {
     public void add(Indication indication){
 
         //Get Indication Subscription 
-        Subscription subscription =  indication.getSubscription();
+        Subscription subscription =  indication.getSubscriptionIndication();
 
         //indicationCount + 1
         Integer indicationCount = subscription.getIndicationCount() + 1;

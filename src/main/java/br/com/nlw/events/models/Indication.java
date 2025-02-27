@@ -19,8 +19,8 @@ public class Indication {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "subscription_id", nullable = false)
-    private Subscription subscription;
+    @JoinColumn(name = "subscription_indication_id", nullable = false)
+    private Subscription subscriptionIndication;
     
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -34,12 +34,12 @@ public class Indication {
         this.id = id;
     }
 
-    public Subscription getSubscription() {
-        return subscription;
+    public Subscription getSubscriptionIndication() {
+        return subscriptionIndication;
     }
 
-    public void setSubscription(Subscription subscription) {
-        this.subscription = subscription;
+    public void setSubscriptionIndication(Subscription subscriptionIndication) {
+        this.subscriptionIndication = subscriptionIndication;
     }
 
     public User getUser() {

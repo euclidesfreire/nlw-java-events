@@ -57,10 +57,12 @@ public class SubscriptionService {
 
         //Get subscription indication
         Subscription subscriptionIndication = subscriptionRepository
-        .findById(subscriptionIndicationId).get();
+        .findById(subscriptionIndicationId)
+        .orElseThrow(() -> new NotFoundException("Subscription indication not found."));
+    
 
         Indication indication = new Indication();
-        indication.setSubscription(subscriptionIndication);
+        indication.setSubscriptionIndication(subscriptionIndication);
         indication.setUser(user);
 
         indicationService.add(indication);
