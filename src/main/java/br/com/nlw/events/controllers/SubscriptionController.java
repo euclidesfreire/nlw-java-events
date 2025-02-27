@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.nlw.events.exceptions.AlreadyExistsException;
 import br.com.nlw.events.exceptions.NotFoundException;
-import br.com.nlw.events.models.Indication;
 import br.com.nlw.events.models.Subscription;
 import br.com.nlw.events.models.User;
 import br.com.nlw.events.services.IndicationService;
