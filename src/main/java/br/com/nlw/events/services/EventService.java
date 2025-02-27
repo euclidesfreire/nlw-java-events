@@ -23,6 +23,8 @@ public class EventService {
      * @return Event envet
     */
     public Event add(Event event){
+
+        //Create PrettyName sep "-"
         event.setPrettyName(event.getTitle().toLowerCase().replaceAll(" ", "-"));
 
         return this.eventRepository.save(event);
@@ -46,7 +48,7 @@ public class EventService {
     */
     public Event findById(Integer id){
         return eventRepository.findById(id)
-         .orElseThrow(() -> new NotFoundException("Event not found with id: " + id));
+         .orElseThrow(() -> new NotFoundException("Event not found by id: " + id));
     }
 
     /**
@@ -58,7 +60,7 @@ public class EventService {
     */
     public Event findByPrettyName(String prettyName) throws NotFoundException {
         return eventRepository.findByPrettyName(prettyName)
-        .orElseThrow(() -> new NotFoundException("Event not found: "  + prettyName));
+        .orElseThrow(() -> new NotFoundException("Event not found by prettyName: "  + prettyName));
     }
 
     
